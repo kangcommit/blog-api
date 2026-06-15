@@ -5,7 +5,6 @@ export const createPostSchema = z.object({
 	slug: z.string().min(1, "slug must be at least one character"),
 	content: z.string().min(1, "content must be at least one character"),
 	excerpt: z.string(),
-	status: z.enum(["draft", "published", "archived"]),
 });
 
 export const updatePostSchema = z.object({
