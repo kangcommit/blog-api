@@ -51,6 +51,87 @@ postRouter
 
 		return c.json({ message: "Post Added successfully", data: newPost }, 201);
 	})
+	.post("/:id/publish", async (c) => {
+		const id = parseId(c.req.param("id"));
+
+		if (id === null) {
+			return c.json({ message: "Invalid post ID" }, 400);
+		}
+
+		try {
+			const updatedJob = await prisma.post.update({
+				where: { id },
+				data: {
+					status: "published",
+				},
+			});
+
+			return c.json({
+				message: "Post Published successfully",
+				data: updatedJob,
+			});
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2025") {
+					return c.json({ message: "Post not found" }, 404);
+				}
+			}
+			throw error;
+		}
+	})
+	.post("/:id/unpublish", async (c) => {
+		const id = parseId(c.req.param("id"));
+
+		if (id === null) {
+			return c.json({ message: "Invalid post ID" }, 400);
+		}
+
+		try {
+			const updatedJob = await prisma.post.update({
+				where: { id },
+				data: {
+					status: "draft",
+				},
+			});
+
+			return c.json({ message: "Post unpublished", data: updatedJob });
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2025") {
+					return c.json({ message: "Post not found" }, 404);
+				}
+			}
+			throw error;
+		}
+	})
+	.post("/:id/archive", async (c) => {
+		const id = parseId(c.req.param("id"));
+
+		if (id === null) {
+			return c.json({ message: "Invalid post ID" }, 400);
+		}
+
+		try {
+			const updatedJob = await prisma.post.update({
+				where: { id },
+				data: {
+					status: "archived",
+				},
+			});
+
+			return c.json({
+				message: "Post archived successfully",
+				data: updatedJob,
+			});
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2025") {
+					return c.json({ message: "Post not found" }, 404);
+				}
+			}
+			throw error;
+		}
+	})
 	.patch("/:id", zValidator("json", updatePostSchema), async (c) => {
 		const id = parseId(c.req.param("id"));
 
