@@ -1,11 +1,16 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { createPostSchema, updatePostSchema } from "./schema.js";
 
 export const postRouter = new Hono();
 
 postRouter
 	.get("/", (c) => c.json({ message: "get all posts" }))
-	.post("/", (c) => c.json({ message: "create post" }))
+	.post("/", zValidator("json", createPostSchema), async (c) =>
+		c.json({ message: "create post" }),
+	)
 	.get("/:id", (c) => c.json({ message: "get post by id" }))
-	.put("/:id", (c) => c.json({ message: "update post" }))
-	.patch("/:id", (c) => c.json({ message: "partial update post" }))
+	.patch("/:id", zValidator("json", updatePostSchema), async (c) =>
+		c.json({ message: "update post" }),
+	)
 	.delete("/:id", (c) => c.json({ message: "delete post" }));
