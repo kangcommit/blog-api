@@ -12,12 +12,20 @@ postRouter
 		const posts = await prisma.post.findMany();
 		return c.json({ data: posts });
 	})
-	.post("/", zValidator("json", createPostSchema), async (c) => {
-		const body = c.req.valid("json");
+	.get("/search", async (c) => {
+		const query = c.req.query("q");
 
-		const newPost = await prisma.post.create({ data: body });
+		if (!query || query.trim() === "") {
+			return c.json({ message: "Search query is required" }, 400);
+		}
 
-		return c.json({ message: "Post Added successfully", data: newPost }, 201);
+		const posts = await prisma.post.findMany({
+			where: {
+				OR: [{ title: { contains: query } }, { content: { contains: query } }],
+			},
+		});
+
+		return c.json({ data: posts });
 	})
 	.get("/:id", async (c) => {
 		const id = parseId(c.req.param("id"));
@@ -35,6 +43,13 @@ postRouter
 		}
 
 		return c.json({ data: post });
+	})
+	.post("/", zValidator("json", createPostSchema), async (c) => {
+		const body = c.req.valid("json");
+
+		const newPost = await prisma.post.create({ data: body });
+
+		return c.json({ message: "Post Added successfully", data: newPost }, 201);
 	})
 	.patch("/:id", zValidator("json", updatePostSchema), async (c) => {
 		const id = parseId(c.req.param("id"));
