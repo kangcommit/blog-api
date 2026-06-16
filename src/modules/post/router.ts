@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { Prisma } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client";
 import { parseId } from "../../utils/params.js";
 import { prisma } from "../../utils/prisma.js";
 import { createPostSchema, updatePostSchema } from "./schema";
@@ -76,6 +76,7 @@ postRouter
 				where: { id },
 				data: {
 					status: "published",
+					publishedAt: new Date(),
 				},
 			});
 
