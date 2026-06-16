@@ -12,13 +12,93 @@ datasource db {
   provider = "sqlite"
 }
 
+enum PostStatus {
+  draft
+  published
+  archived
+}
+
+// TODO: Uncomment this block when ready to implement Authentication
+// model User {
+//   id        Int      @id @default(autoincrement())
+//   username  String   @unique
+//   email     String   @unique
+//   password  String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt()
+
+//   posts    Post[]
+//   comments Comment[]
+//   likes    Like[]
+// }
+
 model Post {
-  id          Int        @id @default(autoincrement())
-  title       String  
-  slug        String  
-  content     String  
-  excerpt     String  
-  status      String     @default("draft")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt()
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  content     String
+  excerpt     String
+  status      PostStatus @default(draft)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt()
+
+  // TODO: Uncomment relation fields below when User model is added
+  // authorId Int
+  // user     User @relation(fields: [authorId], references: [id])
+
+  comments   Comment[]
+  likes      Like[]
+  categories Category[]
+  tags       Tag[]
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
+  // TODO: Uncomment relation fields below when User model is added
+  // authorId Int
+  // author     User @relation(fields: [authorId], references: [id])
+
+  parentId  Int?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  slug        String  @unique
+  description String?
+
+  posts Post[]
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  posts Post[]
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
+  // TODO: Uncomment relation fields below when User model is added
+  // userId Int
+  // user   User @relation(fields: [userId], references: [id])
+
+  // TODO: Uncomment unique constraint below when User model is added
+  // @@unique([userId, postId])
 }
