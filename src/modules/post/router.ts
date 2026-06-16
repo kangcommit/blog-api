@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { Prisma } from "../../generated/prisma/client.js";
 import { parseId } from "../../utils/params.js";
 import { prisma } from "../../utils/prisma.js";
-import { createPostSchema, updatePostSchema } from "./schema.js";
+import { createPostSchema, updatePostSchema } from "./schema";
 
 export const postRouter = new Hono();
 

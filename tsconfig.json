@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "NodeNext",
+		"module": "preserve",
 		"strict": true,
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true,
