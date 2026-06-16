@@ -47,9 +47,22 @@ postRouter
 	.post("/", zValidator("json", createPostSchema), async (c) => {
 		const body = c.req.valid("json");
 
-		const newPost = await prisma.post.create({ data: body });
+		try {
+			const newPost = await prisma.post.create({ data: body });
 
-		return c.json({ message: "Post Added successfully", data: newPost }, 201);
+			return c.json({ message: "Post Added successfully", data: newPost }, 201);
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2002") {
+					return c.json(
+						{ message: `The slug '${body.slug}' is already taken.` },
+						409,
+					);
+				}
+			}
+
+			throw error;
+		}
 	})
 	.post("/:id/publish", async (c) => {
 		const id = parseId(c.req.param("id"));
@@ -152,6 +165,13 @@ postRouter
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2025") {
 					return c.json({ message: "Post not found" }, 404);
+				}
+
+				if (error.code === "P2002") {
+					return c.json(
+						{ message: `The slug '${body.slug}' is already taken.` },
+						409,
+					);
 				}
 			}
 			throw error;
