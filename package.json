@@ -5,10 +5,13 @@
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
 		"start": "node dist/index.js",
+		"lint": "pnpx @biomejs/biome check",
+		"lint:fix": "pnpx @biomejs/biome check --write",
 		"db:deploy": "pnpm prisma migrate deploy",
 		"db:migrate": "pnpm prisma migrate dev",
 		"db:generate": "pnpm prisma generate",
-		"db:studio": "pnpm prisma studio"
+		"db:studio": "pnpm prisma studio",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.19.14",
@@ -25,6 +28,7 @@
 		"@biomejs/biome": "2.5.0",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^20.11.17",
+		"husky": "^9.1.7",
 		"tsx": "^4.7.1",
 		"typescript": "^5.8.3"
 	}
