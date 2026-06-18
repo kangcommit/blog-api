@@ -3,35 +3,44 @@ import { Hono } from "hono";
 import { Prisma } from "../../generated/prisma/client";
 import { parseId } from "../../utils/params.js";
 import { prisma } from "../../utils/prisma.js";
-import { createPostSchema, updatePostSchema } from "./schema";
+import { createPostSchema, searchSchema, updatePostSchema } from "./schema";
 
 export const postRouter = new Hono();
 
 postRouter
 	.get("/", async (c) => {
 		const posts = await prisma.post.findMany();
-		return c.json({ data: posts });
-	})
-	.get("/search", async (c) => {
-		const query = c.req.query("q");
 
-		if (!query || query.trim() === "") {
-			return c.json({ message: "Search query is required" }, 400);
-		}
+		return c.json({
+			success: true,
+			data: posts,
+		});
+	})
+	.get("/search", zValidator("query", searchSchema), async (c) => {
+		const { q } = c.req.valid("query");
 
 		const posts = await prisma.post.findMany({
 			where: {
-				OR: [{ title: { contains: query } }, { content: { contains: query } }],
+				OR: [{ title: { contains: q } }, { content: { contains: q } }],
 			},
 		});
 
-		return c.json({ data: posts });
+		return c.json({
+			success: true,
+			data: posts,
+		});
 	})
 	.get("/:id", async (c) => {
 		const id = parseId(c.req.param("id"));
 
 		if (id === null) {
-			return c.json({ message: "Invalid post ID" }, 400);
+			return c.json(
+				{
+					success: false,
+					message: "Invalid post ID",
+				},
+				400,
+			);
 		}
 
 		const post = await prisma.post.findUnique({
@@ -39,28 +48,48 @@ postRouter
 		});
 
 		if (!post) {
-			return c.json({ message: "Post not found" }, 404);
+			return c.json(
+				{
+					success: false,
+					message: "Post not found",
+				},
+				404,
+			);
 		}
 
-		return c.json({ data: post });
+		return c.json({
+			success: true,
+			data: post,
+		});
 	})
 	.post("/", zValidator("json", createPostSchema), async (c) => {
 		const body = c.req.valid("json");
 
 		try {
-			const newPost = await prisma.post.create({ data: body });
+			const newPost = await prisma.post.create({
+				data: body,
+			});
 
-			return c.json({ message: "Post Added successfully", data: newPost }, 201);
+			return c.json(
+				{
+					success: true,
+					message: "Post added successfully",
+					data: newPost,
+				},
+				201,
+			);
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2002") {
 					return c.json(
-						{ message: `The slug '${body.slug}' is already taken.` },
+						{
+							success: false,
+							message: `The slug '${body.slug}' is already taken.`,
+						},
 						409,
 					);
 				}
 			}
-
 			throw error;
 		}
 	})
@@ -68,11 +97,11 @@ postRouter
 		const id = parseId(c.req.param("id"));
 
 		if (id === null) {
-			return c.json({ message: "Invalid post ID" }, 400);
+			return c.json({ success: false, message: "Invalid post ID" }, 400);
 		}
 
 		try {
-			const updatedJob = await prisma.post.update({
+			const updatedPost = await prisma.post.update({
 				where: { id },
 				data: {
 					status: "published",
@@ -81,13 +110,14 @@ postRouter
 			});
 
 			return c.json({
-				message: "Post Published successfully",
-				data: updatedJob,
+				success: true,
+				message: "Post published successfully",
+				data: updatedPost,
 			});
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2025") {
-					return c.json({ message: "Post not found" }, 404);
+					return c.json({ success: false, message: "Post not found" }, 404);
 				}
 			}
 			throw error;
@@ -101,18 +131,22 @@ postRouter
 		}
 
 		try {
-			const updatedJob = await prisma.post.update({
+			const updatedPost = await prisma.post.update({
 				where: { id },
 				data: {
 					status: "draft",
 				},
 			});
 
-			return c.json({ message: "Post unpublished", data: updatedJob });
+			return c.json({
+				success: true,
+				message: "Post unpublished successfully",
+				data: updatedPost,
+			});
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2025") {
-					return c.json({ message: "Post not found" }, 404);
+					return c.json({ success: false, message: "Post not found" }, 404);
 				}
 			}
 			throw error;
@@ -126,7 +160,7 @@ postRouter
 		}
 
 		try {
-			const updatedJob = await prisma.post.update({
+			const updatedPost = await prisma.post.update({
 				where: { id },
 				data: {
 					status: "archived",
@@ -134,14 +168,13 @@ postRouter
 			});
 
 			return c.json({
+				success: true,
 				message: "Post archived successfully",
-				data: updatedJob,
+				data: updatedPost,
 			});
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
-				if (error.code === "P2025") {
-					return c.json({ message: "Post not found" }, 404);
-				}
+				return c.json({ success: false, message: "Post not found" }, 404);
 			}
 			throw error;
 		}
@@ -150,27 +183,34 @@ postRouter
 		const id = parseId(c.req.param("id"));
 
 		if (id === null) {
-			return c.json({ message: "Invalid post ID" }, 400);
+			return c.json({ success: false, message: "Invalid post ID" }, 400);
 		}
 
 		const body = c.req.valid("json");
 
 		try {
-			const updatePost = await prisma.post.update({
+			const updatedPost = await prisma.post.update({
 				where: { id },
 				data: body,
 			});
 
-			return c.json({ message: "Post updated", data: updatePost });
+			return c.json({
+				success: true,
+				message: "Post updated",
+				data: updatedPost,
+			});
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2025") {
-					return c.json({ message: "Post not found" }, 404);
+					return c.json({ success: false, message: "Post not found" }, 404);
 				}
 
 				if (error.code === "P2002") {
 					return c.json(
-						{ message: `The slug '${body.slug}' is already taken.` },
+						{
+							success: false,
+							message: `The slug '${body.slug}' is already taken.`,
+						},
 						409,
 					);
 				}
@@ -179,10 +219,10 @@ postRouter
 		}
 	})
 	.delete("/:id", async (c) => {
-		const id = Number(c.req.param("id"));
+		const id = parseId(c.req.param("id"));
 
-		if (Number.isNaN(id)) {
-			return c.json({ message: "Invalid post ID" }, 400);
+		if (id === null) {
+			return c.json({ success: false, message: "Invalid post ID" }, 400);
 		}
 
 		try {
@@ -190,11 +230,14 @@ postRouter
 				where: { id },
 			});
 
-			return c.json({ message: "Post deleted successfully", data: null });
+			return c.json({
+				success: true,
+				message: "Post deleted successfully",
+			});
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === "P2025") {
-					return c.json({ message: "Post not found" }, 404);
+					return c.json({ success: false, message: "Post not found" }, 404);
 				}
 			}
 			throw error;
