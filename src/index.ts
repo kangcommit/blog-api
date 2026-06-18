@@ -1,8 +1,11 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { postRouter } from "./modules/post/router.js";
 
-const app = new Hono().route("/posts", postRouter);
+const app = new Hono().use(cors()).route("/posts", postRouter);
+
+export type AppType = typeof app;
 
 serve(
 	{
