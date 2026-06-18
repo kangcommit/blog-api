@@ -14,3 +14,7 @@ export const updatePostSchema = z.object({
 	excerpt: z.string().optional(),
 	status: z.enum(["draft", "published", "archived"]).optional(),
 });
+
+export const searchSchema = z.object({
+	q: z.string().min(1),
+});
