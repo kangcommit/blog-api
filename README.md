@@ -94,18 +94,93 @@ curl -X POST http://localhost:8000/posts \
 
 #### Get All Posts
 
+**Request:**
 ```bash
 curl http://localhost:8000/posts
 ```
 
+**Response:**
+```json
+{
+  "message": "Posts retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "title": "My First Post",
+      "slug": "my-first-post",
+      "content": "This is the content of my first post.",
+      "excerpt": "A short summary",
+      "status": "published",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-02T10:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "Second Post",
+      "slug": "second-post",
+      "content": "Content of the second post.",
+      "excerpt": "Another summary",
+      "status": "draft",
+      "createdAt": "2024-01-05T00:00:00.000Z",
+      "updatedAt": "2024-01-05T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### Get Single Post
+
+**Request:**
+```bash
+curl http://localhost:8000/posts/1
+```
+
+**Response:**
+```json
+{
+  "message": "Post retrieved successfully",
+  "data": {
+    "id": 1,
+    "title": "My First Post",
+    "slug": "my-first-post",
+    "content": "This is the content of my first post.",
+    "excerpt": "A short summary",
+    "status": "published",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-02T10:30:00.000Z"
+  }
+}
+```
+
 #### Search Posts
 
+**Request:**
 ```bash
 curl "http://localhost:8000/posts/search?q=first"
 ```
 
+**Response:**
+```json
+{
+  "message": "Posts retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "title": "My First Post",
+      "slug": "my-first-post",
+      "content": "This is the content of my first post.",
+      "excerpt": "A short summary",
+      "status": "published",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-02T10:30:00.000Z"
+    }
+  ]
+}
+```
+
 #### Update Post
 
+**Request:**
 ```bash
 curl -X PATCH http://localhost:8000/posts/1 \
   -H "Content-Type: application/json" \
@@ -114,10 +189,111 @@ curl -X PATCH http://localhost:8000/posts/1 \
   }'
 ```
 
+**Response:**
+```json
+{
+  "message": "Post Updated successfully",
+  "data": {
+    "id": 1,
+    "title": "Updated Title",
+    "slug": "my-first-post",
+    "content": "This is the content of my first post.",
+    "excerpt": "A short summary",
+    "status": "published",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-15T14:45:00.000Z"
+  }
+}
+```
+
+#### Publish Post
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/posts/1/publish \
+  -H "Content-Type: application/json"
+```
+
+**Response:**
+```json
+{
+  "message": "Post published successfully",
+  "data": {
+    "id": 1,
+    "title": "My First Post",
+    "slug": "my-first-post",
+    "content": "This is the content of my first post.",
+    "excerpt": "A short summary",
+    "status": "published",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-15T15:00:00.000Z"
+  }
+}
+```
+
+#### Unpublish Post
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/posts/1/unpublish \
+  -H "Content-Type: application/json"
+```
+
+**Response:**
+```json
+{
+  "message": "Post unpublished successfully",
+  "data": {
+    "id": 1,
+    "title": "My First Post",
+    "slug": "my-first-post",
+    "content": "This is the content of my first post.",
+    "excerpt": "A short summary",
+    "status": "draft",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-15T15:05:00.000Z"
+  }
+}
+```
+
+#### Archive Post
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/posts/1/archive \
+  -H "Content-Type: application/json"
+```
+
+**Response:**
+```json
+{
+  "message": "Post archived successfully",
+  "data": {
+    "id": 1,
+    "title": "My First Post",
+    "slug": "my-first-post",
+    "content": "This is the content of my first post.",
+    "excerpt": "A short summary",
+    "status": "archived",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-15T15:10:00.000Z"
+  }
+}
+```
+
 #### Delete Post
 
+**Request:**
 ```bash
 curl -X DELETE http://localhost:8000/posts/1
+```
+
+**Response:**
+```json
+{
+  "message": "Post deleted successfully",
+  "data": null
+}
 ```
 
 ## Project Structure
