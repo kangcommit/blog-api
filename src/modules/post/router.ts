@@ -5,9 +5,7 @@ import { parseId } from "../../utils/params.js";
 import { prisma } from "../../utils/prisma.js";
 import { createPostSchema, searchSchema, updatePostSchema } from "./schema";
 
-export const postRouter = new Hono();
-
-postRouter
+export const postRouter = new Hono()
 	.get("/", async (c) => {
 		const posts = await prisma.post.findMany();
 
