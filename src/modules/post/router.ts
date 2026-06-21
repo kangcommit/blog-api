@@ -1,9 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { Prisma } from "../../generated/prisma/client";
+import { Prisma } from "../../generated/prisma/client.js";
 import { parseId } from "../../utils/params.js";
 import { prisma } from "../../utils/prisma.js";
-import { createPostSchema, searchSchema, updatePostSchema } from "./schema";
+import { createPostSchema, searchSchema, updatePostSchema } from "./schema.js";
 
 export const postRouter = new Hono()
 	.get("/", async (c) => {
