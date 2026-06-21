@@ -4,7 +4,7 @@
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
-		"start": "node dist/index.js",
+		"start": "node ./dist/src/index.js",
 		"lint": "pnpx @biomejs/biome check",
 		"lint:fix": "pnpx @biomejs/biome check --write",
 		"db:deploy": "pnpm prisma migrate deploy",
